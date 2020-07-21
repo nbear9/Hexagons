@@ -6,11 +6,14 @@
 #include <QPolygonF>
 #include <qmath.h>
 #include "boardhexagon.h"
+#include "boardgraphicshexagon.h"
 
 const bool VERTICAL = true;
-const int SIZE      = 30;
-const int FIELD_X   = 9;
-const int FIELD_Y   = 15;
+const int SIZE      = 44;
+const int FIELD_X   = 5;
+const int FIELD_Y   = 8;
+const bool GRAPHICAL = true;
+
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -18,6 +21,8 @@ Widget::Widget(QWidget *parent)
     QHBoxLayout * hbox = new QHBoxLayout;
     QGraphicsView * view = new QGraphicsView;
     GraphicsScene * scene = new GraphicsScene;
+
+    qsrand(12355);
 
     const qreal side = SIZE;
     const qreal dx = qSqrt(3)/2 * side;
@@ -49,18 +54,50 @@ Widget::Widget(QWidget *parent)
 
     int x_coord = 0;
     int y_coord = 0;
+    QPixmap p;
     for(int r = 0; r < FIELD_Y; r++)
     {
         for(int c = 0; c < FIELD_X; c++)
         {
-            BoardHexagon * hexagon = new BoardHexagon(0);
-            hexagon->setPolygon(polygon);
-            scene->addItem(hexagon);
-            if(hexVertical)
-                hexagon->setPos(dx * (c * 2 + (r % 2)), side * 1.5 * r);
+            if(GRAPHICAL)
+            {
+                boardGraphicsHexagon* hexagon = new boardGraphicsHexagon(0);
+
+                int t = qrand() % 4;
+                switch (t) {
+                    case 0:
+                        p = QPixmap(":/terrains/grass.png");
+                        break;
+                    case 1:
+                        p = QPixmap(":/terrains/dirt.png");
+                        break;
+                    case 2:
+                        p = QPixmap(":/terrains/sand.png");
+                        break;
+                    case 3:
+                    default:
+                        p = QPixmap(":/terrains/stone.png");
+                        break;
+                }
+                hexagon->setPixmap(p.scaled(dx*2, side*2));
+                scene->addItem(hexagon);
+                if(hexVertical)
+                    hexagon->setPos(dx * (c * 2 + (r % 2)), side * 1.5 * r);
+                else
+                    hexagon->setPos(side * 1.5 * c, dx * (r * 2 + (c % 2)));
+                hexagon->setToolTip(QString::number(x_coord) + "," + QString::number(y_coord));
+            }
             else
-                hexagon->setPos(side * 1.5 * c, dx * (r * 2 + (c % 2)));
-            hexagon->setToolTip(QString::number(x_coord) + "," + QString::number(y_coord));
+            {
+                BoardHexagon * hexagon = new BoardHexagon(0);
+                hexagon->setPolygon(polygon);
+                scene->addItem(hexagon);
+                if(hexVertical)
+                    hexagon->setPos(dx * (c * 2 + (r % 2)), side * 1.5 * r);
+                else
+                    hexagon->setPos(side * 1.5 * c, dx * (r * 2 + (c % 2)));
+                hexagon->setToolTip(QString::number(x_coord) + "," + QString::number(y_coord));
+            }
             x_coord++;
         }
         x_coord = 0;
