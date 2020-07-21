@@ -7,6 +7,11 @@
 #include <qmath.h>
 #include "boardhexagon.h"
 
+const int SIZE      = 30;
+const int FIELD_X   = 9;
+const int FIELD_Y   = 15;
+const bool VERTICAL = true;
+
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
@@ -14,36 +19,43 @@ Widget::Widget(QWidget *parent)
     QGraphicsView * view = new QGraphicsView;
     GraphicsScene * scene = new GraphicsScene;
 
-    QPolygonF polygon;
-    qreal side = 20;
-    qreal dx = qSqrt(3)/2 * side;
-    polygon
-            // standing on a point
+    const qreal side = SIZE;
+    const qreal dx = qSqrt(3)/2 * side;
+    const bool hexVertical = VERTICAL;
+    int w = FIELD_X;
+    int h = FIELD_Y;
+
+    QPolygonF polygon;       
+    if(hexVertical)
+    {
+        polygon
+            // standing on a point (vertical)
             << QPointF(dx, -side/2)
             << QPointF(0, -side)
             << QPointF(-dx, -side/2)
             << QPointF(-dx, side/2)
             << QPointF(0, side)
             << QPointF(dx, side/2);
-    // Sitting flat
-    //            << QPointF(-side/2, dx)
-    //            << QPointF(-side, 0)
-    //            << QPointF(-side/2, -dx)
-    //            << QPointF(side/2, -dx)
-    //            << QPointF(side, 0)
-    //            << QPointF(side/2, dx);
-
-    int h = 9;
-    int w = 17;
-    int mid_h = h/2;
-    int mid_w = w/2;
+        w *= 2;
+    }
+    else
+    {
+        polygon
+            // sitting flat (horizontal)
+            << QPointF(-side/2, dx)
+            << QPointF(-side, 0)
+            << QPointF(-side/2, -dx)
+            << QPointF(side/2, -dx)
+            << QPointF(side, 0)
+            << QPointF(side/2, dx);
+        h *= 2;
+    }
 
     for(int r = 0; r < h; r++)
     {
         for(int c = 0; c < w; c++)
         {
-            if(qAbs(mid_h - r) + qAbs(mid_w - c) > 8
-                    || (r % 2 != c % 2))
+            if(r % 2 != c % 2)
             {
                 // don't add a hexagon, it isn't on the board!
             }
@@ -52,7 +64,10 @@ Widget::Widget(QWidget *parent)
                 BoardHexagon * hexagon = new BoardHexagon(0);
                 hexagon->setPolygon(polygon);
                 scene->addItem(hexagon);
-                hexagon->setPos(dx * c, side * 1.5 * r);
+                if(hexVertical)
+                    hexagon->setPos(dx * c, side * 1.5 * r);
+                else
+                    hexagon->setPos(side * 1.5 * c, dx * r);
                 hexagon->setToolTip(QString::number(r) + "," + QString::number(c));
             }
         }
@@ -70,7 +85,7 @@ Widget::Widget(QWidget *parent)
     hbox->addWidget(view);
     this->setLayout(hbox);
 
-    this->resize(600, 400);
+    this->resize(800, 800);
 }
 
 void Widget::makeDraggable(QGraphicsItem *item)

@@ -4,21 +4,18 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       += core gui widgets
 
 TARGET = Hexagons
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         widget.cpp \
     graphicsscene.cpp \
-    boardhexagon.cpp \
-    draggablepiece.cpp
+    boardhexagon.cpp
+#    draggablepiece.cpp
 
 HEADERS  += widget.h \
     graphicsscene.h \
-    boardhexagon.h \
-    draggablepiece.h
+    boardhexagon.h
+#    draggablepiece.h
