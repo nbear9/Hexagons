@@ -7,10 +7,10 @@
 #include <qmath.h>
 #include "boardhexagon.h"
 
+const bool VERTICAL = true;
 const int SIZE      = 30;
 const int FIELD_X   = 9;
 const int FIELD_Y   = 15;
-const bool VERTICAL = true;
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -22,8 +22,6 @@ Widget::Widget(QWidget *parent)
     const qreal side = SIZE;
     const qreal dx = qSqrt(3)/2 * side;
     const bool hexVertical = VERTICAL;
-    int w = FIELD_X;
-    int h = FIELD_Y;
 
     QPolygonF polygon;       
     if(hexVertical)
@@ -36,7 +34,6 @@ Widget::Widget(QWidget *parent)
             << QPointF(-dx, side/2)
             << QPointF(0, side)
             << QPointF(dx, side/2);
-        w *= 2;
     }
     else
     {
@@ -48,32 +45,29 @@ Widget::Widget(QWidget *parent)
             << QPointF(side/2, -dx)
             << QPointF(side, 0)
             << QPointF(side/2, dx);
-        h *= 2;
     }
 
-    for(int r = 0; r < h; r++)
+    int x_coord = 0;
+    int y_coord = 0;
+    for(int r = 0; r < FIELD_Y; r++)
     {
-        for(int c = 0; c < w; c++)
+        for(int c = 0; c < FIELD_X; c++)
         {
-            if(r % 2 != c % 2)
-            {
-                // don't add a hexagon, it isn't on the board!
-            }
+            BoardHexagon * hexagon = new BoardHexagon(0);
+            hexagon->setPolygon(polygon);
+            scene->addItem(hexagon);
+            if(hexVertical)
+                hexagon->setPos(dx * (c * 2 + (r % 2)), side * 1.5 * r);
             else
-            {
-                BoardHexagon * hexagon = new BoardHexagon(0);
-                hexagon->setPolygon(polygon);
-                scene->addItem(hexagon);
-                if(hexVertical)
-                    hexagon->setPos(dx * c, side * 1.5 * r);
-                else
-                    hexagon->setPos(side * 1.5 * c, dx * r);
-                hexagon->setToolTip(QString::number(r) + "," + QString::number(c));
-            }
+                hexagon->setPos(side * 1.5 * c, dx * (r * 2 + (c % 2)));
+            hexagon->setToolTip(QString::number(x_coord) + "," + QString::number(y_coord));
+            x_coord++;
         }
+        x_coord = 0;
+        y_coord++;
     }
 
-    QGraphicsEllipseItem * ellipse = scene->addEllipse(-20, -20, 20, 20,QPen(), QBrush(QColor(Qt::green)));
+    QGraphicsEllipseItem * ellipse = scene->addEllipse(-40, -40, 20, 20,QPen(), QBrush(QColor(Qt::green)));
     this->makeDraggable(ellipse);
 
 
